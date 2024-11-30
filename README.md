@@ -16,5 +16,5 @@ Este projeto utiliza **Streamlit**, **OpenAI** e **SentenceTransformers** para c
 - Extração de texto e criação de embeddings.
 - Consulta inteligente utilizando o modelo GPT da OpenAI.
 - Interface intuitiva desenvolvida com Streamlit.
-
+  Link para utilização pelo stremlit
 https://geccgtsvrk8mkwdcgdq9me.streamlit.app/
