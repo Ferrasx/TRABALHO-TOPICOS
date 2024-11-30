@@ -22,9 +22,15 @@ https://geccgtsvrk8mkwdcgdq9me.streamlit.app/
 
 para poder rodar localmente
 tem que fazer dessa forma com os determinados comentarios
+
 import os
-#OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+
+#OPENAI_API_KEY = st.secrets["OPENAI_API_KEY
+
 INDEX_NAME = "multilingual-e5-large"
+
 # Configurar a chave de API do OpenAI
+
 openai.api_key = "coloque sua key"
+
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
