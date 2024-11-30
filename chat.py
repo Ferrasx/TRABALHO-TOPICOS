@@ -2,12 +2,9 @@ import openai
 from PyPDF2 import PdfReader
 from sentence_transformers import SentenceTransformer
 import streamlit as st
-import os
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-INDEX_NAME = "multilingual-e5-large"
+
 # Configurar a chave de API do OpenAI
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-openai.api_key = OPENAI_API_KEY
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Modelo de embeddings
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -27,26 +24,24 @@ def generate_embeddings(text):
 
 def store_embeddings(embeddings, sentences):
     vectors = [(str(i), embeddings[i].tolist(), {"text": sentences[i]}) for i in range(len(sentences))]
+    return vectors
 
-def query_assistant(question):
+def query_assistant(question, all_sentences, all_embeddings):
     # Geração do embedding da pergunta
     query_embedding = embedding_model.encode([question])[0]
 
-    # Simulação ou implementação do Pinecone
-    # Aqui você precisa implementar a lógica de consulta ao Pinecone se for usar
-    # results = pinecone_index.query(query_embedding.tolist(), top_k=3, include_metadata=True)
+    # Simulação de similaridade com embeddings
+    from numpy import dot
+    from numpy.linalg import norm
 
-    # Exemplo de resultado simulado para não gerar erro
-    results = {
-        "matches": [
-            {"metadata": {"text": "Texto exemplo 1"}},
-            {"metadata": {"text": "Texto exemplo 2"}},
-            {"metadata": {"text": "Texto exemplo 3"}}
-        ]
-    }
+    similarities = [
+        dot(query_embedding, emb) / (norm(query_embedding) * norm(emb))
+        for emb in all_embeddings
+    ]
+    top_indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)[:3]
 
-    # Construa o contexto a partir dos resultados
-    context = " ".join([match["metadata"]["text"] for match in results["matches"]])
+    # Construir contexto com as sentenças mais relevantes
+    context = " ".join([all_sentences[i] for i in top_indices])
 
     # Gerar a resposta usando o OpenAI
     response = openai.ChatCompletion.create(
@@ -59,22 +54,30 @@ def query_assistant(question):
     )
     return response["choices"][0]["message"]["content"]
 
-
 # Interface com Streamlit
-st.write("Carregue um arquivo PDF e faça perguntas baseadas no conteúdo!")
+st.title("Assistente baseado em Múltiplos PDFs")
+st.write("Carregue vários arquivos PDF e faça perguntas baseadas no conteúdo!")
 
-uploaded_file = st.file_uploader("Envie um arquivo PDF", type="pdf")
+# Upload de múltiplos PDFs
+uploaded_files = st.file_uploader("Envie os arquivos PDF", type="pdf", accept_multiple_files=True)
 
-if uploaded_file is not None:
-    with st.spinner("Processando o arquivo PDF..."):
-        text = extract_text_from_pdf(uploaded_file)
-        sentences, embeddings = generate_embeddings(text)
-        store_embeddings(embeddings, sentences)
+if uploaded_files:
+    all_sentences = []
+    all_embeddings = []
+    
+    with st.spinner("Processando os arquivos PDF..."):
+        for uploaded_file in uploaded_files:
+            text = extract_text_from_pdf(uploaded_file)
+            sentences, embeddings = generate_embeddings(text)
+            
+            # Armazenar todas as sentenças e embeddings
+            all_sentences.extend(sentences)
+            all_embeddings.extend(embeddings)
 
-    st.write("Agora, você pode fazer perguntas sobre o conteúdo do arquivo.")
+    st.success("Arquivos processados! Agora, você pode fazer perguntas.")
     question = st.text_input("Digite sua pergunta:")
 
     if question:
         with st.spinner("Gerando resposta..."):
-            answer = query_assistant(question)
+            answer = query_assistant(question, all_sentences, all_embeddings)
             st.write("Resposta:", answer)
