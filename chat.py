@@ -6,6 +6,7 @@ import os
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 INDEX_NAME = "multilingual-e5-large"
 # Configurar a chave de API do OpenAI
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 openai.api_key = OPENAI_API_KEY
 
 # Modelo de embeddings
