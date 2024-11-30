@@ -21,7 +21,7 @@ https://geccgtsvrk8mkwdcgdq9me.streamlit.app/
 
 
 para poder rodar localmente
-Basta comentar a linha #OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+basta comentar a linha #OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"] e colocar a key da open ia
 INDEX_NAME = "multilingual-e5-large"
 # Configurar a chave de API do OpenAI
 openai.api_key = "coloque sua key"
