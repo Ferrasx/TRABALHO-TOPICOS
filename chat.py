@@ -3,7 +3,7 @@ from PyPDF2 import PdfReader
 from sentence_transformers import SentenceTransformer
 import streamlit as st
 import os
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 INDEX_NAME = "multilingual-e5-large"
 # Configurar a chave de API do OpenAI
 openai.api_key = OPENAI_API_KEY
